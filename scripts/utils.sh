@@ -2,6 +2,72 @@ ORDERER_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrga
 PEER0_ORG1_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
 PEER0_ORG2_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
 
+function exportPeerPorts() {
+  
+  for ((org=0; org<$ORGS; org++)) do
+        PEERS=$(jq ".AllOrgs[$org].peers" UserInput.json)
+        for ((peer=0; peer<$PEERS; peer++)) do
+          export PEER${peer}_ORG${org}_PORT=$(jq ".AllOrgs[$org].peerPorts[$peer]" UserInput.json)
+          port=PEER${peer}_ORG${org}_PORT
+          echo "$port = ${!port}"
+        done
+  done
+}
+
+function createArtifactYamlFiles() {
+  node artifact-yaml-gen.js
+}
+
+function createDockerYaml() {
+  node docker-yaml-gen.js
+}
+
+function createYamlAndCerts() {
+  # exportPeerPorts
+  which cryptogen
+  if [ "$?" -ne 0 ]; then
+    echo "cryptogen tool not found. exiting"
+    exit 1
+  fi
+  echo
+  echo "##########################################################"
+  echo "##### Generate certificates using cryptogen tool #########"
+  echo "##########################################################"
+
+  if [ -d "crypto-config" ]; then
+    rm -Rf crypto-config
+  fi
+  
+  createArtifactYamlFiles
+  set -x
+  cryptogen generate --config=./crypto-config.yaml
+  res=$?
+  set +x
+  if [ $res -ne 0 ]; then
+    echo "Failed to generate certificates..."
+    exit 1
+  fi
+  createDockerYaml
+}
+
+function createGenesisBlock () {
+  echo "##########################################################"
+  echo "#########  Generating Orderer Genesis block ##############"
+  echo "##########################################################"
+
+  set -x
+  configtxgen -profile FirstOrdererGenesis -channelID $SYS_CHANNEL -outputBlock ./channel-artifacts/genesis.block
+
+  res=$?
+  set +x
+  if [ $res -ne 0 ]; then
+    echo "Failed to generate orderer genesis block..."
+    exit 1
+  fi
+} 
+
+
+
 # verify the result of the end-to-end test
 verifyResult() {
   if [ $1 -ne 0 ]; then
@@ -26,7 +92,7 @@ updateAnchorPeers() {
 
   setGlobals $PEER $ORG $ANCHOR_PEER_PORT
   set -x
-  peer channel update -o orderer.example.com:7050 -c $CHANNEL_NAME -f ./channel-artifacts/${CORE_PEER_LOCALMSPID}anchors.tx --tls --cafile $ORDERER_CA >&log.txt
+  peer channel update -o orderer.example.com:7050 -c $CHANNEL_NAME -f ./channel-artifacts/${CORE_PEER_LOCALMSPID}anchors_${CHANNEL_NAME}.tx --tls --cafile $ORDERER_CA >&log.txt
   res=$?
   set +x
   
@@ -63,13 +129,13 @@ joinChannelWithRetry() {
   cat log.txt
   if [ $res -ne 0 -a $COUNTER -lt $MAX_RETRY ]; then
     COUNTER=$(expr $COUNTER + 1)
-    echo "peer${PEER}.org${ORG} failed to join the channel, Retry after $DELAY seconds"
+    echo "peer${PEER}.${ORG} failed to join the channel, Retry after $DELAY seconds"
     sleep $DELAY
     joinChannelWithRetry $PEER $ORG $PEER_PORT
   else
     COUNTER=1
   fi
-  verifyResult $res "After $MAX_RETRY attempts, peer${PEER}.org${ORG} has failed to join channel '$CHANNEL_NAME' "
+  verifyResult $res "After $MAX_RETRY attempts, peer${PEER}.${ORG} has failed to join channel '$CHANNEL_NAME' "
 }
 
 installChaincode() {
@@ -79,12 +145,12 @@ installChaincode() {
   setGlobals $PEER $ORG $PEER_PORT
   VERSION=${4:-1.0}
   set -x
-  peer chaincode install -n mycc -v ${VERSION} -l ${LANGUAGE} -p ${CC_SRC_PATH} >&log.txt
+  peer chaincode install -n ${CHANNEL_NAME}_cc -v ${VERSION} -l ${LANGUAGE} -p ${CC_SRC_PATH} >&log.txt
   res=$?
   set +x
   cat log.txt
-  verifyResult $res "Chaincode installation on peer${PEER}.org${ORG} has failed"
-  echo "===================== Chaincode is installed on peer${PEER}.org${ORG} ===================== "
+  verifyResult $res "Chaincode installation on peer${PEER}.${ORG} has failed"
+  echo "===================== Chaincode is installed on peer${PEER}.${ORG} ===================== "
   echo
 }
 
@@ -96,12 +162,12 @@ instantiateChaincode() {
   VERSION=${4:-1.0}
 
   set -x
-  peer chaincode instantiate -o orderer.example.com:7050 --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n mycc -l ${LANGUAGE} -v 1.0 -c '{"Args":["init","a","100","b","200"]}' -P "AND ('Org1MSP.peer','Org2MSP.peer')" >&log.txt
+  peer chaincode instantiate -o orderer.example.com:7050 --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CHANNEL_NAME}_cc -l ${LANGUAGE} -v 1.0 -c '{"Args":["init","a","100","b","200"]}' -P "AND ('Org1MSP.peer','Org2MSP.peer')" >&log.txt
   res=$?
   set +x
   cat log.txt
-  verifyResult $res "Chaincode instantiation on peer${PEER}.org${ORG} on channel '$CHANNEL_NAME' failed"
-  echo "===================== Chaincode is instantiated on peer${PEER}.org${ORG} on channel '$CHANNEL_NAME' ===================== "
+  verifyResult $res "Chaincode instantiation on peer${PEER}.${ORG} on channel '$CHANNEL_NAME' failed"
+  echo "===================== Chaincode is instantiated on peer${PEER}.${ORG} on channel '$CHANNEL_NAME' ===================== "
   echo
 }
 
@@ -111,7 +177,7 @@ upgradeChaincode() {
   setGlobals $PEER $ORG
 
   set -x
-  peer chaincode upgrade -o orderer.example.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n mycc -v 2.0 -c '{"Args":["init","a","90","b","210"]}' -P "AND ('Org1MSP.peer','Org2MSP.peer','Org3MSP.peer')"
+  peer chaincode upgrade -o orderer.example.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CHANNEL_NAME}_cc -v 2.0 -c '{"Args":["init","a","90","b","210"]}' -P "AND ('Org1MSP.peer','Org2MSP.peer','Org3MSP.peer')"
   res=$?
   set +x
   cat log.txt
@@ -138,7 +204,7 @@ chaincodeQuery() {
     sleep $DELAY
     echo "Attempting to Query peer${PEER}.org${ORG} ...$(($(date +%s) - starttime)) secs"
     set -x
-    peer chaincode query -C $CHANNEL_NAME -n mycc -c '{"Args":["query","a"]}' >&log.txt
+    peer chaincode query -C $CHANNEL_NAME -n ${CHANNEL_NAME}_cc -c '{"Args":["query","a"]}' >&log.txt
     res=$?
     set +x
     test $res -eq 0 && VALUE=$(cat log.txt | awk '/Query Result/ {print $NF}')
@@ -258,12 +324,12 @@ chaincodeInvoke() {
   # it using the "-o" option
   if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
     set -x
-    peer chaincode invoke -o orderer.example.com:7050 -C $CHANNEL_NAME -n mycc $PEER_CONN_PARMS -c '{"Args":["invoke","a","b","10"]}' >&log.txt
+    peer chaincode invoke -o orderer.example.com:7050 -C $CHANNEL_NAME -n ${CHANNEL_NAME}_cc $PEER_CONN_PARMS -c '{"Args":["invoke","a","b","10"]}' >&log.txt
     res=$?
     set +x
   else
     set -x
-    peer chaincode invoke -o orderer.example.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n mycc $PEER_CONN_PARMS -c '{"Args":["invoke","a","b","10"]}' >&log.txt
+    peer chaincode invoke -o orderer.example.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CHANNEL_NAME}_cc $PEER_CONN_PARMS -c '{"Args":["invoke","a","b","10"]}' >&log.txt
     res=$?
     set +x
   fi

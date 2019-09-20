@@ -56,7 +56,7 @@ joinChannel () {
 }
 
 anchorPeersUpdate() {
-	for ((org=0 ; org<=$ORGS; org++))
+	for ((org=0 ; org<$ORGS; org++))
 	do
 		ORG_NAME=$(jq ".Channels[$CHANNEL].Organizations[$org].name" scripts/UserInput2.json | tr -d '"')
 		ANCHOR_PEER_PORT=$(jq ".Channels[$CHANNEL].Organizations[$org].AnchorPeers[0].Port" scripts/UserInput2.json)
@@ -66,12 +66,12 @@ anchorPeersUpdate() {
 
 installTheChaincode() {
 
-		for ((org=1 ; org<=$ORGS; org++)) do
+		for ((org=0 ; org<$ORGS; org++)) do
 			PEERS=$(jq ".Channels[$CHANNEL].Organizations[$org].peers" scripts/UserInput2.json)
 			ORG_NAME=$(jq ".Channels[$CHANNEL].Organizations[$org].name" scripts/UserInput2.json | tr -d '"')
 			for ((peer=0; peer<$PEERS; peer++)) do
 				PPORT=$(jq ".Channels[$CHANNEL].Organizations[$org].peerPorts[$peer]" scripts/UserInput2.json)				
-				echo "Installing chaincode on peer${peer}.org${org}..."
+				echo "Installing chaincode on peer${peer}.${org}..."
 				installChaincode $peer $ORG_NAME $PPORT
 			done
 		done
@@ -79,19 +79,17 @@ installTheChaincode() {
 }
 
 instantiateTheChaincode() {
-	ORGS=$1
-		for ((org=1 ; org<=$ORGS; org++)) do
+		for ((org=0 ; org<$ORGS; org++)) do
 
 			PEERS=$(jq ".Organizations[$((org - 1))].peers" scripts/UserInput2.json)
 			ORG_NAME=$(jq ".Channels[$CHANNEL].Organizations[$org].name" scripts/UserInput2.json | tr -d '"')
 			for ((peer=0; peer<$PEERS; peer++)) do
 				PPORT=$(jq ".Channels[$CHANNEL].Organizations[$org].peerPorts[$peer]" scripts/UserInput2.json)
-				echo "Instantiating chaincode on peer${peer}.org${org}..."
+				echo "Instantiating chaincode on peer${peer}.${org}..."
 				instantiateChaincode $peer $ORG_NAME $PPORT
 			done
 		done
 }
-
 
 
 ## Create channel
@@ -111,8 +109,7 @@ anchorPeersUpdate
 # # Install chaincode on all peers
 installTheChaincode
 
-# # instantiateTheChaincode $ORGS
-# instantiateChaincode 0 1 $PEER0_ORG1_PORT
+instantiateTheChaincode
 
 # echo "Querying chaincode on peer0.org1..."
 # chaincodeQuery 0 1 100 $PEER0_ORG1_PORT
@@ -120,17 +117,8 @@ installTheChaincode
 # echo "Sending invoke transaction on peer0.org1 peer0.org2..."
 # chaincodeInvoke 0 1 $PEER0_ORG1_PORT 0 2 $PEER0_ORG2_PORT
 
-
 echo
-echo "========= All GOOD =========== "
-echo
-
-echo
-echo " _____   _   _   ____   "
-echo "| ____| | \ | | |  _ \  "
-echo "|  _|   |  \| | | | | | "
-echo "| |___  | |\  | | |_| | "
-echo "|_____| |_| \_| |____/  "
+echo "========= All GOOD FOR CHANNEL $CHANNEL_NAME =========== "
 echo
 
 exit 0
