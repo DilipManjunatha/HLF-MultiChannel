@@ -1,0 +1,50 @@
+{
+    "version": "2",
+    "services": {
+        "orderer.example.com": {
+            "container_name": "orderer.example.com",
+            "extends": {
+                "file": "peer-base.yaml",
+                "service": "orderer-base"
+            },
+            "volumes": [
+                "../channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block",
+                "../crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/msp:/var/hyperledger/orderer/msp",
+                "../crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/:/var/hyperledger/orderer/tls",
+                "orderer.example.com:/var/hyperledger/production/orderer"
+            ],
+            "ports": [
+                "7050:7050"
+            ]
+        },
+        "peer{PEER}.{OrgName}.com": {
+            "container_name": "peer{PEER}.{OrgName}.com",
+            "extends": {
+                "file": "peer-base.yaml",
+                "service": "peer-base"
+            },
+            "environment": [
+                "CORE_PEER_ID=peer{PEER}.{OrgName}.com",
+                "CORE_PEER_ADDRESS=peer{PEER}.{OrgName}.com:{PEER_PORT}",
+                "CORE_PEER_LISTENADDRESS=0.0.0.0:{PEER_PORT}",
+                "CORE_PEER_CHAINCODEADDRESS=peer{PEER}.{OrgName}.com:{CCPORT}",
+                "CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:{CCPORT}",
+                "CORE_PEER_GOSSIP_BOOTSTRAP={gossipPeer}",
+                "CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer{PEER}.{OrgName}.com:{PEER_PORT}",
+                "CORE_PEER_LOCALMSPID={OrgName}MSP"
+            ],
+            "volumes": [
+                "/var/run/:/host/var/run/",
+                "../crypto-config/peerOrganizations/{OrgName}.com/peers/peer{PEER}.{OrgName}.com/msp:/etc/hyperledger/fabric/msp",
+                "../crypto-config/peerOrganizations/{OrgName}.com/peers/peer{PEER}.{OrgName}.com/tls:/etc/hyperledger/fabric/tls",
+                "peer{PEER}.{OrgName}.com:/var/hyperledger/production"
+            ],
+            "image": "hyperledger/fabric-peer:latest",
+            "working_dir": "/opt/gopath/src/github.com/hyperledger/fabric/peer",
+            "command": "peer node start",
+            "ports": [
+                "{PEER_PORT}:{PEER_PORT}"
+            ]
+        }
+    }
+}

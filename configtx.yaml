@@ -1,0 +1,90 @@
+Organizations:
+  - Name: OrdererOrg
+    ID: OrdererMSP
+    MSPDir: ./crypto-config/ordererOrganizations/example.com/msp
+  - &ref_0
+    Name: Org1MSP
+    ID: Org1MSP
+    MSPDir: ./crypto-config/peerOrganizations/Org1.com/msp
+    AnchorPeers:
+      - Host: peer0.Org1.com
+        Port: 5051
+  - &ref_1
+    Name: Org2MSP
+    ID: Org2MSP
+    MSPDir: ./crypto-config/peerOrganizations/Org2.com/msp
+    AnchorPeers:
+      - Host: peer0.Org2.com
+        Port: 8051
+  - &ref_2
+    Name: Org3MSP
+    ID: Org3MSP
+    MSPDir: ./crypto-config/peerOrganizations/Org3.com/msp
+    AnchorPeers:
+      - Host: peer0.Org3.com
+        Port: 10051
+Orderer:
+  Addresses:
+    - 'orderer.example.com:7050'
+  BatchSize:
+    AbsoluteMaxBytes: 99 MB
+    MaxMessageCount: 10
+    PreferredMaxBytes: 512 KB
+  BatchTimeout: 2s
+  OrdererType: solo
+  Organizations: null
+Profiles:
+  FirstOrdererGenesis:
+    Orderer:
+      Organizations:
+        - Name: OrdererOrg
+          ID: OrdererMSP
+          MSPDir: ./crypto-config/ordererOrganizations/example.com/msp
+      Addresses:
+        - 'orderer.example.com:7050'
+      BatchSize:
+        AbsoluteMaxBytes: 99 MB
+        MaxMessageCount: 10
+        PreferredMaxBytes: 512 KB
+      BatchTimeout: 2s
+      OrdererType: solo
+    Consortiums:
+      SampleConsortium:
+        Organizations:
+          - *ref_0
+          - *ref_1
+          - *ref_2
+  nanchannel2Profile:
+    Consortium: SampleConsortium
+    Application:
+      Organizations:
+        - Name: Org1MSP
+          ID: Org1MSP
+          MSPDir: ./crypto-config/peerOrganizations/Org1.com/msp
+          AnchorPeers:
+            - Host: peer0.Org1.com
+              Port: 5051
+        - Name: Org2MSP
+          ID: Org2MSP
+          MSPDir: ./crypto-config/peerOrganizations/Org2.com/msp
+          AnchorPeers:
+            - Host: peer0.Org2.com
+              Port: 8051
+  nanchannel1Profile:
+    Consortium: SampleConsortium
+    Application:
+      Organizations:
+        - Name: Org1MSP
+          ID: Org1MSP
+          MSPDir: ./crypto-config/peerOrganizations/Org1.com/msp
+          AnchorPeers:
+            - Host: peer0.Org1.com
+              Port: 5051
+        - Name: Org3MSP
+          ID: Org3MSP
+          MSPDir: ./crypto-config/peerOrganizations/Org3.com/msp
+          AnchorPeers:
+            - Host: peer0.Org3.com
+              Port: 10051
+Application:
+  Organizations: null

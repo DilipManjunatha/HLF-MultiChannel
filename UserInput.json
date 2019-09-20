@@ -1,0 +1,33 @@
+{ "Organizations":[
+                    {
+                        "name": "org1",
+                        "peers": 2,
+                        "peerPorts": [5051, 6051],
+                        "gossipPeer": ["peer1.org1.com:6051","peer0.org1.com:5051"],
+                        "caPort": 7054
+                    },
+                    {
+                        "name": "org2",
+                        "peers": 2,
+                        "peerPorts": [8051, 9051],
+                        "gossipPeer": ["peer1.org2.com:9051","peer0.org2.com:8051"],
+                        "caPort": 7064
+                    },
+                    {
+                        "name": "org3",
+                        "peers": 2,
+                        "peerPorts": [10051, 11051],
+                        "gossipPeer": ["peer1.org3.com:11051","peer0.org3.com:10051"],
+                        "caPort": 7074
+                    },
+                    {
+                        "name": "org4",
+                        "peers": 2,
+                        "peerPorts": [7051, 5064],
+                        "gossipPeer": ["peer1.org4.com:5064","peer0.org4.com:7051"],
+                        "caPort": 7084
+                    }
+                ],
+    "ChannelName": "nanchannel",
+    "SystemChannel": "mysys"
+}

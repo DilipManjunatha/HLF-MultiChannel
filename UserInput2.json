@@ -1,0 +1,76 @@
+{
+    
+    "AllOrgs":[
+        {
+            "name": "Org1",
+            "peers": 2,
+            "peerPorts": [5051, 6051],
+            "gossipPeer": ["peer1.Org1.com:6051","peer0.Org1.com:5051"],
+            "AnchorPeers": [{"Host":"peer0.Org1.com","Port": 5051}],
+            "caPort": 7054
+        },
+        {
+            "name": "Org2",
+            "peers": 2,
+            "peerPorts": [8051, 9051],
+            "gossipPeer": ["peer1.Org2.com:9051","peer0.Org2.com:8051"],
+            "AnchorPeers": [{"Host":"peer0.Org2.com","Port": 8051}],
+            "caPort": 7064
+        },
+        {
+            "name": "Org3",
+            "peers": 2,
+            "peerPorts": [10051, 11051],
+            "gossipPeer": ["peer1.Org3.com:11051","peer0.Org3.com:10051"],
+            "AnchorPeers": [{"Host":"peer0.Org3.com","Port": 10051}],
+            "caPort": 7074
+        }
+    ],
+
+    "Channels":[
+        {
+            "Organizations":[
+                {
+                    "name": "Org1",
+                    "peers": 2,
+                    "peerPorts": [5051, 6051],
+                    "gossipPeer": ["peer1.Org1.com:6051","peer0.Org1.com:5051"],
+                    "AnchorPeers": [{"Host":"peer0.Org1.com","Port": 5051}],
+                    "caPort": 7054
+                },
+                {
+                    "name": "Org2",
+                    "peers": 2,
+                    "peerPorts": [8051, 9051],
+                    "gossipPeer": ["peer1.Org2.com:9051","peer0.Org2.com:8051"],
+                    "AnchorPeers": [{"Host":"peer0.Org2.com","Port": 8051}],
+                    "caPort": 7064
+                }
+            ],
+            "ChannelName": "nanchannel2"
+        },
+
+        {
+            "Organizations": [
+                {
+                    "name": "Org1",
+                    "peers": 2,
+                    "peerPorts": [5051, 6051],
+                    "gossipPeer": ["peer1.Org1.com:6051","peer0.Org1.com:5051"],
+                    "AnchorPeers": [{"Host":"peer0.Org1.com","Port": 5051}],
+                    "caPort": 7054
+                },
+                {
+                    "name": "Org3",
+                    "peers": 2,
+                    "peerPorts": [10051, 11051],
+                    "gossipPeer": ["peer1.Org3.com:11051","peer0.Org3.com:10051"],
+                    "AnchorPeers": [{"Host":"peer0.Org3.com","Port": 10051}],
+                    "caPort": 7074
+                }
+            ],
+            "ChannelName": "nanchannel1"
+        }
+    ],
+    "SystemChannel": "mysys"
+}
