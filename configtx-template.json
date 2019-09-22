@@ -31,13 +31,8 @@
                     },
                     "Consortiums":
                         {"SampleConsortium":
-                            {"Organizations":[]}}},
-
-                "Autochannel": {"Consortium": "SampleConsortium",
-                                "Application":
-                                    {"Organizations":[]}}
-                
-                },
+                            {"Organizations":[]}}}
+    },
 
     "Application": {"Organizations": null}
         

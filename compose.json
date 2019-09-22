@@ -23,7 +23,7 @@
                     "volumes": [
                         "./crypto-config/peerOrganizations/{OrgName}.com/ca/:/etc/hyperledger/fabric-ca-server-config"
                     ],
-                    "container_name": "ca_peerOrg_{OrgName}",
+                    "container_name": "ca_{OrgName}",
                     "networks": [
                         "byfn"
                     ]},
