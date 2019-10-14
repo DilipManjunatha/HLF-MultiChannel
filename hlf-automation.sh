@@ -6,6 +6,13 @@ export VERBOSE=false
 
 MODE=$1
 
+#Install jq
+sudo apt-get install jq
+
+#Install js-yaml
+npm install js-yaml
+
+echo $PWD
 # TODO - Create validator function for user input JSON file
 SYS_CHANNEL=$(jq '.SystemChannel' UserInput.json | tr -d '"')
 CHANNELS=$(jq '.Channels | length' UserInput.json)
