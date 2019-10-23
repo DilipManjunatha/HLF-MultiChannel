@@ -39,7 +39,7 @@ function createConfigtxYaml() {
         var channelOrgs = inputChannels.Organizations;
         data.Profiles[profileName] = { "Consortium": "SampleConsortium", "Application": { "Organizations": [] } } //Creates channel profiles dynamically
 
-        
+
         for (let i in channelOrgs) {
             var orgName = channelOrgs[i].name;
             var AnchorPeers = channelOrgs[i].AnchorPeers
@@ -73,5 +73,5 @@ function createConfigtxYaml() {
 createCryptoConfigYaml()
 // configtxv1(orgs)
 // configtxv2(orgs)
-createConfigtxYaml()
+// createConfigtxYaml()
 // allOrgs()
