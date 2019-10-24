@@ -1,7 +1,7 @@
 Organizations:
   - Name: OrdererOrg
     ID: OrdererMSP
-    MSPDir: crypto-config/ordererOrganizations/orderer.com/msp
+    MSPDir: crypto-config/ordererOrganizations/example.com/msp
     Policies:
       Readers:
         Type: Signature
@@ -77,14 +77,14 @@ Channel:
   Capabilities:
     V1_4_3: true
 Profiles:
-  OrdererGenesis:
+  FirstOrdererGenesis:
     Capabilities:
       V1_4_3: true
     Orderer:
       Organizations:
         - Name: OrdererOrg
           ID: OrdererMSP
-          MSPDir: crypto-config/ordererOrganizations/orderer.com/msp
+          MSPDir: crypto-config/ordererOrganizations/example.com/msp
       OrdererType: solo
       BatchTimeout: 2s
       BatchSize:
@@ -110,7 +110,7 @@ Profiles:
             AnchorPeers:
               - Host: peer0.Org2.com
                 Port: 8051
-  nanchannel2:
+  nanchannel2Profile:
     Consortium: SampleConsortium
     Application:
       Organizations:
