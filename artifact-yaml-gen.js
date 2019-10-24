@@ -50,6 +50,11 @@ function createConfigtxYaml() {
                 'MSPDir': './crypto-config/peerOrganizations/' + orgName + '.com/msp',
                 AnchorPeers
             };
+            data.Profiles[profileName].Application.Capabilities = {
+                "V1_3": true,
+                "V1_2": false,
+                "V1_1": false
+            }
             data.Profiles[profileName].Application.Organizations.push(orglist);
         }
     }
@@ -61,6 +66,20 @@ function createConfigtxYaml() {
             'Name': orgName + 'MSP',
             'ID': orgName + 'MSP',
             'MSPDir': './crypto-config/peerOrganizations/' + orgName + '.com/msp',
+            "Policies": {
+                "Readers": {
+                    "Type": "Signature",
+                    "Rule": "OR('" + orgName + "MSP.admin', '" + orgName + "MSP.peer', '" + orgName + "MSP.client', '" + orgName + "MSP.member')"
+                },
+                "Writers": {
+                    "Type": "Signature",
+                    "Rule": "OR('" + orgName + "MSP.admin', '" + orgName + "MSP.member', '" + orgName + "MSP.client', '" + orgName + "MSP.member')"
+                },
+                "Admins": {
+                    "Type": "Signature",
+                    "Rule": "OR('" + orgName + "MSP.admin')"
+                }
+            },
             AnchorPeers
         };
         data.Organizations.push(orglist)
@@ -73,5 +92,5 @@ function createConfigtxYaml() {
 createCryptoConfigYaml()
 // configtxv1(orgs)
 // configtxv2(orgs)
-// createConfigtxYaml()
+createConfigtxYaml()
 // allOrgs()

@@ -1,39 +1,81 @@
 {
-        
     "Organizations": [
-        {"Name": "OrdererOrg",
-         "ID": "OrdererMSP",
-         "MSPDir": "./crypto-config/ordererOrganizations/example.com/msp" }],
-
+        {
+            "Name": "OrdererOrg",
+            "ID": "OrdererMSP",
+            "MSPDir": "./crypto-config/ordererOrganizations/example.com/msp",
+            "Policies": {
+                "Readers": {
+                    "Type": "Signature",
+                    "Rule": "OR('OrdererMSP.member')"
+                },
+                "Writers": {
+                    "Type": "Signature",
+                    "Rule": "OR('OrdererMSP.member')"
+                },
+                "Admins": {
+                    "Type": "Signature",
+                    "Rule": "OR('OrdererMSP.admin')"
+                }
+            }
+        }
+    ],
     "Orderer": {
-        "Addresses": ["orderer.example.com:7050"],
+        "Addresses": [
+            "orderer.example.com:7050"
+        ],
         "BatchSize": {
             "AbsoluteMaxBytes": "99 MB",
             "MaxMessageCount": 10,
-            "PreferredMaxBytes": "512 KB"},
+            "PreferredMaxBytes": "512 KB"
+        },
         "BatchTimeout": "2s",
         "OrdererType": "solo",
-        "Organizations": null},
-    
-    "Profiles": {
-                "FirstOrdererGenesis":{
-                    "Orderer":{
-                        "Organizations":[
-                            {"Name": "OrdererOrg",
-                            "ID": "OrdererMSP",
-                            "MSPDir": "./crypto-config/ordererOrganizations/example.com/msp" }],
-                        "Addresses": ["orderer.example.com:7050"],
-                        "BatchSize": {"AbsoluteMaxBytes": "99 MB",
-                                    "MaxMessageCount": 10,
-                                    "PreferredMaxBytes": "512 KB"},
-                        "BatchTimeout": "2s",
-                        "OrdererType": "solo"
-                    },
-                    "Consortiums":
-                        {"SampleConsortium":
-                            {"Organizations":[]}}}
+        "Organizations": null
     },
-
-    "Application": {"Organizations": null}
-        
+    "Capabilities": {
+        "Channel": {
+            "V1_4_3": true
+        },
+        "Orderer": {
+            "V1_4_2": true
+        },
+        "Application": {
+            "V1_4_2": true,
+            "V1_3": false,
+            "V1_1": false
+        }
+    },
+    "Channel": {"Capabilities": {"V1_4_3": true}},
+    "Profiles": {
+        "FirstOrdererGenesis": {
+            "Orderer": {
+                "Organizations": [
+                    {
+                        "Name": "OrdererOrg",
+                        "ID": "OrdererMSP",
+                        "MSPDir": "./crypto-config/ordererOrganizations/example.com/msp"
+                    }
+                ],
+                "Addresses": [
+                    "orderer.example.com:7050"
+                ],
+                "BatchSize": {
+                    "AbsoluteMaxBytes": "99 MB",
+                    "MaxMessageCount": 10,
+                    "PreferredMaxBytes": "512 KB"
+                },
+                "BatchTimeout": "2s",
+                "OrdererType": "solo"
+            },
+            "Consortiums": {
+                "SampleConsortium": {
+                    "Organizations": []
+                }
+            }
+        }
+    },
+    "Application": {
+        "Organizations": null
+    }
 }
