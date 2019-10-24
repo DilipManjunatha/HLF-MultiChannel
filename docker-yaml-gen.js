@@ -1,6 +1,6 @@
 const yaml = require('js-yaml');
 const fs = require('fs');
-const rep = require("./common.js")
+const rep = require("./replaceString.js")
 const dockerbase = require("./dockerbase.json");
 const inputJson = require('./UserInput.json');
 const compose = require("./compose.json");

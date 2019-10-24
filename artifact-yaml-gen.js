@@ -1,6 +1,6 @@
 const yaml = require('js-yaml');
 const fs = require('fs');
-const rep = require("./common.js")
+const rep = require("./replaceString.js")
 const inputJson = require('./UserInput.json');
 const configJson = require('./configtx-template.json');
 const cryptoJson = require("./crypto-template.json");

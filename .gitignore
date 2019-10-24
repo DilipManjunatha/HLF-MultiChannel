@@ -18,3 +18,5 @@ crypto-config/*
 #Ignore binaries 
 bin/
 
+package-lock.json
+
