@@ -127,6 +127,6 @@ Profiles:
             - Host: peer0.Org2.com
               Port: 8051
       Capabilities:
-        V1_4_3: true
+        V1_4_2: true
         V1_2: false
         V1_1: false
