@@ -33,11 +33,11 @@ function exportPeerPorts() {
 }
 
 function createArtifactYamlFiles() {
-  node artifact-yaml-gen.js
+  node yaml-generator/artifact-yaml-gen.js
 }
 
 function createDockerYaml() {
-  node docker-yaml-gen.js
+  node yaml-generator/docker-yaml-gen.js
 }
 
 function createYamlAndCerts() {
@@ -125,14 +125,14 @@ function generateChannelArtifacts() {
   echo "#################################################################################"
 }
 
-function channelList() {
+function allChannelsUp() {
   MODE=$1
 
   for ((ch = 0; ch < $CHANNELS; ch++)); do
     CHANNEL_NAME=$(jq ".Channels[$ch].ChannelName" UserInput.json | tr -d '"')
     PROFILE_NAME=$CHANNEL_NAME"Profile"
     ORGS=$(jq ".Channels[$ch].Organizations | length" UserInput.json)
-    ./functions.sh $MODE $ORGS $CHANNEL_NAME $PROFILE_NAME $ch
+    ./startNetwork.sh $MODE $ORGS $CHANNEL_NAME $PROFILE_NAME $ch
   done
 }
 
@@ -182,16 +182,16 @@ function replacePrivateKey() {
 }
 
 if [ "${MODE}" == "up" ]; then
-  channelList up
+  allChannelsUp up
 elif [ "${MODE}" == "down" ]; then ## Clear the network
   networkDown
 elif [ "${MODE}" == "generate" ]; then ## Generate Artifacts
   createYamlAndCerts
   createGenesisBlock
-  channelList generate
+  allChannelsUp generate
 elif [ "${MODE}" == "restart" ]; then
   networkDown
-  channelList up
+  allChannelsUp up
 else
   printHelp
   exit 1

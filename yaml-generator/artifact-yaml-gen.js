@@ -1,9 +1,9 @@
 const yaml = require('js-yaml');
 const fs = require('fs');
-const rep = require("./replaceString.js")
-const inputJson = require('./UserInput.json');
-const configJson = require('./configtx-template.json');
-const cryptoJson = require("./crypto-template.json");
+const rep = require("../utilities/replaceString.js")
+const inputJson = require('../UserInput.json');
+const configJson = require('../json-templates/configtx-template.json');
+const cryptoJson = require("../json-templates/crypto-template.json");
 const channels = inputJson.Channels;
 const allOrgs = inputJson.AllOrgs;
 
