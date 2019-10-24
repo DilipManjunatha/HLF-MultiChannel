@@ -8,11 +8,13 @@ node_modules/
 *.exe
 
 #Ignore crypto material folder
-crypto-config/
+crypto-config/*
 
-#Ignore all block and transaction files
-*.block
-*.tx
+#Ignore content in channel-artifacts folder
+/channel-artifacts/*.tx
+/channel-artifacts/*.block
+/channel-artifacts/*.json
 
 #Ignore binaries 
 bin/
+
